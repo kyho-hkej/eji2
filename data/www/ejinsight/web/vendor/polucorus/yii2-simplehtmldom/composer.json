@@ -1,0 +1,20 @@
+{
+    "name": "polucorus/yii2-simplehtmldom",
+    "description": "\"PHP Simple HTML DOM Parser\" rev.210x adapted to Yii2 psr-4(namespace autoload class) based on serhatozles/yii2-simplehtmldom(rev.196)",
+    "type": "yii2-extension",
+    "keywords": ["yii2","extension","simplehtmldom","simple_html_dom"],
+    "license": "WTFPL",
+    "require": {
+        "yiisoft/yii2": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "polucorus\\simplehtmldom\\": ""
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.210.x-dev"
+        }
+    }
+}

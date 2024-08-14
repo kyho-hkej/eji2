@@ -1,0 +1,728 @@
+<?php
+
+namespace app\controllers;
+
+use Yii;
+use yii\web\Controller;
+use uii\web\UrlManager;
+//use yii\data\Pagination;
+use yii\helpers\EjHelper;
+use yii\helpers\Url;
+use app\models\Article;
+use app\models\DailyNews;
+
+
+class InstantnewsmobController extends Controller
+{
+    public $meta_description='';
+    public $meta_keywords='';
+    public $title='';
+
+    //即時新聞全部
+	public function actionEmbedindex(){
+
+   		//Sticky,焦點新聞 5 on top
+        $focusCnt = 1;
+        $tmp = array();
+        $focus = array();
+        for ($focusCnt = 1; $focusCnt <= 5; $focusCnt++){
+            $focus=Article::findBySection(Yii::$app->params['section2id']["sticky-focus{$focusCnt}"], $range=7);
+            
+            if (is_array($focus)){
+                $tmp[$focusCnt-1] = $focus[0];
+            } else{
+                $tmp[$focusCnt-1] = $focus;
+            }
+        }
+        $articles_focus = $tmp;
+
+        // other 即時新聞 by publish time
+        // selectable pool ( take out duplication from the selected stickies )
+        $tmp=array();
+        $sectionId = Yii::$app->params['section2id']['instant-all'];
+        $limit = 100;
+        $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+        $total = 100;
+        $range =7;
+
+
+        $tmp=Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+        $articles=EjHelper::takeOutDuplicated($tmp, $articles_focus, 100); //take out duplicate from 焦點新聞
+
+        $this->view->params['trackEvent'] = array(
+                'category'=> 'Instant news',
+                'action'=> 'Listing Mobile',
+                'label'=> 'PSN:全部|PG:'.$page,
+        );
+        
+        if (($articles) || ($articles_keynews)) {
+            return $this->renderAjax('index', [
+            'focusarticles' => $articles_focus,
+            'articles' => $articles,
+        ]);
+        } else {
+            //echo '<!--no articles -->';
+            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+        }
+		
+		
+	}
+
+    public function actionIndex(){
+    		
+    		$page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+
+    		if ($page <=5) { //if page < 5, read from assets files
+    			$url = Yii::$app->params['mobilewebUrl'].'/assets/instantnewsMob/instantnewsMob_p'.$page.'.html';
+				return $this->renderPartial('/layouts/instantnews_read_widget', ['url'=>$url]);
+			} else { // if page > 6, display error
+					throw new \yii\web\HttpException(404,'The requested page does not exist.');
+					/*
+
+			        // other 即時新聞 by publish time
+			        // selectable pool ( take out duplication from the selected stickies )
+			        $articles=array();
+			        $sectionId = Yii::$app->params['section2id']['instant-all-landing'];
+			        $limit = 100;
+			        $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+			        $total = 100;
+			        $range =7;
+
+			        $query2=Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+			        $articles = $query2->all();
+			        //$articles=EjHelper::takeOutDuplicated($tmp, $articles_focus, 100); //take out duplicate from 焦點新聞
+			        
+			        if ($articles) {
+			            return $this->render('index', [
+			            //'focusarticles' => $articles_focus,
+			            'articles' => $articles,
+			        ]);
+			        } else {
+			            //echo '<!--no articles -->';
+			            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+			        }
+
+			        */
+			} 
+			
+    }
+
+    //即時新聞港股直擊
+    public function actionEmbedstock(){
+
+    	$sticky=Article::findBySection(Yii::$app->params['section2id']['sticky-stock'], $range=7);
+
+		//other articles
+		$sectionId = Yii::$app->params['section2id']['instant-stock'];
+		$limit=100;
+		$page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+		$total=100;
+		$range=14;
+
+		$tmp = Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+		$articles=EjHelper::takeOutDuplicated($tmp, $sticky, 100);
+
+		$this->view->params['trackEvent'] = array(
+                'category'=> 'Instant news',
+                'action'=> 'Listing Mobile',
+                'label'=> 'PSN:港股直擊|PG:'.$page,
+        );
+        
+
+		if (($articles) || ($sticky)) {
+            return $this->renderAjax('list', [
+            'label' => '港股直擊',
+            'sticky' => $sticky,
+            'articles' => $articles,
+        ]);
+        } else {
+            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+        }
+		
+
+	}
+
+    public function actionStock(){
+    	    $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+
+    		if ($page <=5) { //if page < 5, read from assets files
+    			$url = Yii::$app->params['mobilewebUrl'].'/assets/instantnewsMob/instantnewsMob_stock_p'.$page.'.html';
+				return $this->renderPartial('/layouts/instantnews_read_widget', ['url'=>$url]);
+			} else { // if page > 6, display error
+				throw new \yii\web\HttpException(404,'The requested page does not exist.');
+			}
+	}
+
+//即時新聞香港財經
+   public function actionEmbedhongkong(){
+
+    	$sticky=Article::findBySection(Yii::$app->params['section2id']['sticky-hongkong'], $range=7);
+
+		//other articles
+		$sectionId = Yii::$app->params['section2id']['instant-hongkong'];
+		$limit=100;
+		$page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+		$total=100;
+		$range=14;
+
+		$tmp = Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+		$articles=EjHelper::takeOutDuplicated($tmp, $sticky, 100);
+
+		$this->view->params['trackEvent'] = array(
+                'category'=> 'Instant news',
+                'action'=> 'Listing Mobile',
+                'label'=> 'PSN:香港財經|PG:'.$page,
+        );
+        
+
+		if (($articles) || ($sticky)) {
+            return $this->renderAjax('list', [
+            'label' => '香港財經',
+            'sticky' => $sticky,
+            'articles' => $articles,
+        ]);
+        } else {
+            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+        }
+		
+
+	}
+
+    public function actionHongkong(){
+    	    $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+
+    		if ($page <=5) { //if page < 5, read from assets files
+    			$url = Yii::$app->params['mobilewebUrl'].'/assets/instantnewsMob/instantnewsMob_hongkong_p'.$page.'.html';
+                return $this->renderPartial('/layouts/instantnews_read_widget', ['url'=>$url]);
+			} else { // if page > 6, display error
+				throw new \yii\web\HttpException(404,'The requested page does not exist.');
+			}
+	}
+
+//即時新聞地產新聞
+   public function actionEmbedproperty(){
+
+    	$sticky=Article::findBySection(Yii::$app->params['section2id']['sticky-instant-property'], $range=7);
+
+		//$sticky = $query_sticky->all();
+
+		//other articles
+		$sectionId = Yii::$app->params['section2id']['instant-property'];
+		$limit=100;
+		$page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+		$total=100;
+		$range=14;
+
+		$tmp = Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+		$articles=EjHelper::takeOutDuplicated($tmp, $sticky, 100);
+
+		$this->view->params['trackEvent'] = array(
+                'category'=> 'Instant news',
+                'action'=> 'Listing Mobile',
+                'label'=> 'PSN:地產新聞|PG:'.$page,
+        );
+        
+
+		if (($articles) || ($sticky)) {
+            return $this->renderAjax('list', [
+            'label' => '地產新聞',
+            'sticky' => $sticky,
+            'articles' => $articles,
+        ]);
+        } else {
+            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+        }
+		
+
+	}
+
+    public function actionProperty(){
+    	    $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+
+    		if ($page <=5) { //if page < 5, read from assets files
+    			$url = Yii::$app->params['mobilewebUrl'].'/assets/instantnewsMob/instantnewsMob_property_p'.$page.'.html';
+				return $this->renderPartial('/layouts/instantnews_read_widget', ['url'=>$url]);
+			} else { // if page > 6, display error
+				throw new \yii\web\HttpException(404,'The requested page does not exist.');
+			}
+	}
+
+
+//即時新聞中國財經
+   public function actionEmbedchina(){
+
+    	$sticky=Article::findBySection(Yii::$app->params['section2id']['sticky-china'], $range=7);
+
+		//other articles
+		$sectionId = Yii::$app->params['section2id']['instant-china'];
+		$limit=100;
+		$page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+		$total=100;
+		$range=14;
+
+		$tmp = Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+		$articles=EjHelper::takeOutDuplicated($tmp, $sticky, 100);
+
+		$this->view->params['trackEvent'] = array(
+                'category'=> 'Instant news',
+                'action'=> 'Listing Mobile',
+                'label'=> 'PSN:中國財經|PG:'.$page,
+        );
+        
+
+		if (($articles) || ($sticky)) {
+            return $this->renderAjax('list', [
+            'label' => '中國財經',
+            'sticky' => $sticky,
+            'articles' => $articles,
+        ]);
+        } else {
+            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+        }
+		
+
+	}
+
+    public function actionChina(){
+    	    $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+
+    		if ($page <=5) { //if page < 5, read from assets files
+    			$url = Yii::$app->params['mobilewebUrl'].'/assets/instantnewsMob/instantnewsMob_china_p'.$page.'.html';
+				return $this->renderPartial('/layouts/instantnews_read_widget', ['url'=>$url]);
+			} else { // if page > 6, display error
+				throw new \yii\web\HttpException(404,'The requested page does not exist.');
+			}
+	}
+
+	
+//即時新聞國際財經
+   public function actionEmbedinternational(){
+
+    	$sticky=Article::findBySection(Yii::$app->params['section2id']['sticky-international'], $range=7);
+
+		//other articles
+		$sectionId = Yii::$app->params['section2id']['instant-international'];
+		$limit=100;
+		$page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+		$total=100;
+		$range=14;
+
+		$tmp = Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+		$articles=EjHelper::takeOutDuplicated($tmp, $sticky, 100);
+
+		$this->view->params['trackEvent'] = array(
+                'category'=> 'Instant news',
+                'action'=> 'Listing Mobile',
+                'label'=> 'PSN:國際財經|PG:'.$page,
+        );
+        
+
+		if (($articles) || ($sticky)) {
+            return $this->renderAjax('list', [
+            'label' => '國際財經',
+            'sticky' => $sticky,
+            'articles' => $articles,
+        ]);
+        } else {
+            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+        }
+		
+
+	}
+
+    public function actionInternational(){
+    	    $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+
+    		if ($page <=5) { //if page < 5, read from assets files
+    			$url = Yii::$app->params['mobilewebUrl'].'/assets/instantnewsMob/instantnewsMob_international_p'.$page.'.html';
+				return $this->renderPartial('/layouts/instantnews_read_widget', ['url'=>$url]);
+			} else { // if page > 6, display error
+				throw new \yii\web\HttpException(404,'The requested page does not exist.');
+			}
+	}
+	
+//即時新聞時事脈搏
+   public function actionEmbedcurrent(){
+
+    	$sticky=Article::findBySection(Yii::$app->params['section2id']['sticky-current'], $range=7);
+
+		//other articles
+		$sectionId = Yii::$app->params['section2id']['instant-current'];
+		$limit=100;
+		$page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+		$total=100;
+		$range=14;
+
+		$tmp = Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+		$articles=EjHelper::takeOutDuplicated($tmp, $sticky, 100);
+
+		$this->view->params['trackEvent'] = array(
+                'category'=> 'Instant news',
+                'action'=> 'Listing Mobile',
+                'label'=> 'PSN:時事脈搏|PG:'.$page,
+        );
+        
+
+		if (($articles) || ($sticky)) {
+            return $this->renderAjax('list', [
+            'label' => '時事脈搏',
+            'label2' => '全部',
+            'sticky' => $sticky,
+            'articles' => $articles,
+        ]);
+        } else {
+            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+        }
+		
+
+	}
+
+    public function actionCurrent(){
+    	    $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+
+    		if ($page <=5) { //if page < 5, read from assets files
+    			$url = Yii::$app->params['mobilewebUrl'].'/assets/instantnewsMob/instantnewsMob_current_p'.$page.'.html';
+				return $this->renderPartial('/layouts/instantnews_read_widget', ['url'=>$url]);
+			} else { // if page > 6, display error
+				throw new \yii\web\HttpException(404,'The requested page does not exist.');
+			}
+	}
+
+//即時新聞即市股評
+   public function actionEmbedmarket(){
+
+    	$sticky=Article::findBySection(Yii::$app->params['section2id']['sticky-market'], $range=7);
+
+		//other articles
+		$sectionId = Yii::$app->params['section2id']['instant-market'];
+		$limit=100;
+		$page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+		$total=100;
+		$range=14;
+
+		$tmp = Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+		$articles=EjHelper::takeOutDuplicated($tmp, $sticky, 100);
+
+		$this->view->params['trackEvent'] = array(
+                'category'=> 'Instant news',
+                'action'=> 'Listing Mobile',
+                'label'=> 'PSN:即市股評|PG:'.$page,
+        );
+        
+
+		if (($articles) || ($sticky)) {
+            return $this->renderAjax('list', [
+            'label' => '即市股評',
+            'sticky' => $sticky,
+            'articles' => $articles,
+        ]);
+        } else {
+            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+        }
+		
+
+	}
+
+    public function actionMarket(){
+    	    $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+
+    		if ($page <=5) { //if page < 5, read from assets files
+    			$url = Yii::$app->params['mobilewebUrl'].'/assets/instantnewsMob/instantnewsMob_market_p'.$page.'.html';
+				return $this->renderPartial('/layouts/instantnews_read_widget', ['url'=>$url]);
+			} else { // if page > 6, display error
+				throw new \yii\web\HttpException(404,'The requested page does not exist.');
+			}
+	}
+
+//即時新聞重要通告
+   public function actionEmbedannouncement(){
+
+    	$sticky=Article::findBySection(Yii::$app->params['section2id']['sticky-announcement'], $range=7);
+
+		//other articles
+		$sectionId = Yii::$app->params['section2id']['instant-announcement'];
+		$limit=100;
+		$page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+		$total=100;
+		$range=14;
+
+		$tmp = Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+		$articles=EjHelper::takeOutDuplicated($tmp, $sticky, 100);
+
+		$this->view->params['trackEvent'] = array(
+                'category'=> 'Instant news',
+                'action'=> 'Listing Mobile',
+                'label'=> 'PSN:重要通告|PG:'.$page,
+        );
+        
+
+		if (($articles) || ($sticky)) {
+            return $this->renderAjax('list', [
+            'label' => '重要通告',
+            'sticky' => $sticky,
+            'articles' => $articles,
+        ]);
+        } else {
+            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+        }
+		
+
+	}
+
+    public function actionAnnouncement(){
+            $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+
+            if ($page <=5) { //if page < 5, read from assets files
+                $url = Yii::$app->params['mobilewebUrl'].'/assets/instantnewsMob/instantnewsMob_announcement_p'.$page.'.html';
+                return $this->renderPartial('/layouts/instantnews_read_widget', ['url'=>$url]);
+            } else { // if page > 6, display error
+                throw new \yii\web\HttpException(404,'The requested page does not exist.');
+            }
+    }
+
+//即時新聞港交所通告
+   public function actionEmbedhkex(){
+
+    	$sectionId = Yii::$app->params['section2id']['hkex-all'];
+		$limit=100;
+		$page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+		$total=100;
+		$range=14;
+
+		$articles = Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+		$sticky = array(); // no sticky just pass an empty array
+
+		$this->view->params['trackEvent'] = array(
+                'category'=> 'Instant news',
+                'action'=> 'Listing Mobile',
+                'label'=> 'PSN:港交所通告|PG:'.$page,
+        );
+        
+
+		if ($articles) {
+            return $this->renderAjax('list', [
+            'label' => '港交所通告',
+            'sticky' => $sticky,
+            'articles' => $articles,
+        ]);
+        } else {
+            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+        }
+		
+
+	}
+
+    public function actionHkex(){
+    	    $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+
+    		if ($page <=5) { //if page < 5, read from assets files
+    			$url = Yii::$app->params['mobilewebUrl'].'/assets/instantnewsMob/instantnewsMob_hkex_p'.$page.'.html';
+				return $this->renderPartial('/layouts/instantnews_read_widget', ['url'=>$url]);
+			} else { // if page > 6, display error
+				throw new \yii\web\HttpException(404,'The requested page does not exist.');
+			}
+	}
+
+    public function actionEmbedhknews()
+    {
+        $sectionId = Yii::$app->params['section2id']['instant-hknews'];
+        $limit=100;
+        $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+        $total=100;
+        $range=14;
+
+        $articles = Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+        $sticky = array(); // no sticky just pass an empty array
+
+        $this->view->params['trackEvent'] = array(
+                'category'=> 'Instant news',
+                'action'=> 'Listing Mobile',
+                'label'=> 'PSN:港聞|PG:'.$page,
+        );
+        
+
+        if ($articles) {
+            return $this->renderAjax('list', [
+            'label' => '時事脈搏',
+            'label2' => '港聞',
+            'sticky' => $sticky,
+            'articles' => $articles,
+        ]);
+        } else {
+            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+        }
+    }
+
+
+    public function actionHknews()
+    {
+            $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+
+            if ($page <=5) { //if page < 5, read from assets files
+                $url = Yii::$app->params['mobilewebUrl'].'/assets/instantnewsMob/instantnewsMob_hknews_p'.$page.'.html';
+                return $this->renderPartial('/layouts/instantnews_read_widget', ['url'=>$url]);
+            } else { // if page > 6, display error
+                throw new \yii\web\HttpException(404,'The requested page does not exist.');
+            }
+    }
+
+
+    public function actionEmbedcntw()
+    {
+        
+        $sectionId = Yii::$app->params['section2id']['instant-cntw'];
+        $limit=100;
+        $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+        $total=100;
+        $range=14;
+
+        $articles = Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+        $sticky = array(); // no sticky just pass an empty array
+
+        $this->view->params['trackEvent'] = array(
+                'category'=> 'Instant news',
+                'action'=> 'Listing Mobile',
+                'label'=> 'PSN:兩岸|PG:'.$page,
+        );
+        
+
+        if ($articles) {
+            return $this->renderAjax('list', [
+            'label' => '時事脈搏',
+            'label2' => '兩岸',
+            'sticky' => $sticky,
+            'articles' => $articles,
+        ]);
+        } else {
+            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+        }
+
+    }
+
+    public function actionCntw()
+    {
+            $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+
+            if ($page <=5) { //if page < 5, read from assets files
+                $url = Yii::$app->params['mobilewebUrl'].'/assets/instantnewsMob/instantnewsMob_cntw_p'.$page.'.html';
+                return $this->renderPartial('/layouts/instantnews_read_widget', ['url'=>$url]);
+            } else { // if page > 6, display error
+                throw new \yii\web\HttpException(404,'The requested page does not exist.');
+            }
+    }
+
+
+    public function actionEmbedintlnews()
+    {
+        $sectionId = Yii::$app->params['section2id']['instant-intlnews'];
+        $limit=100;
+        $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+        $total=100;
+        $range=14;
+
+        $articles = Article::findAllBySection($sectionId, $limit, $page, $total, $range);
+        $sticky = array(); // no sticky just pass an empty array
+
+        $this->view->params['trackEvent'] = array(
+                'category'=> 'Instant news',
+                'action'=> 'Listing Mobile',
+                'label'=> 'PSN:國際|PG:'.$page,
+        );
+        
+
+        if ($articles) {
+            return $this->renderAjax('list', [
+            'label' => '時事脈搏',    
+            'label2' => '國際',
+            'sticky' => $sticky,
+            'articles' => $articles,
+        ]);
+        } else {
+            throw new \yii\web\HttpException(404,'The requested page does not exist.');
+        }
+    }
+
+    public function actionIntlnews()
+    {
+            $page=isset($_REQUEST['page'])? $_REQUEST['page']: 1;
+
+            if ($page <=5) { //if page < 5, read from assets files
+                $url = Yii::$app->params['mobilewebUrl'].'/assets/instantnewsMob/instantnewsMob_intlnews_p'.$page.'.html';
+                return $this->renderPartial('/layouts/instantnews_read_widget', ['url'=>$url]);
+            } else { // if page > 6, display error
+                throw new \yii\web\HttpException(404,'The requested page does not exist.');
+            }
+    }
+
+
+    public function beforeAction($action)
+	{
+	    // your custom code here, if you want the code to run before action filters,
+	    // which are triggered on the [[EVENT_BEFORE_ACTION]] event, e.g. PageCache or AccessControl
+
+        $detect = Yii::$app->mobileDetect;
+        $action_id = Yii::$app->controller->action->id;
+        $is_embed = strpos($action_id, 'embed');
+
+        //if ($detect->isMobile() && !$detect->isTablet()) {
+        if ($detect->isMobile() && !$detect->isTablet() || $is_embed !== false) {
+
+            $this->view->params['trackEvent'] = array(
+                    'category'=> 'Instant news',
+                    'action'=> 'Listing Mobile',
+                    'label'=> 'CID:TOC',
+            );
+
+
+            // define meta tag
+            $action_id = preg_replace('/embed/i', '', Yii::$app->controller->action->id);
+    		$this->view->title=Yii::$app->params['instantnewsMeta'][$action_id]['title'];
+    		$this->meta_description=Yii::$app->params['instantnewsMeta'][$action_id]['desc'];				
+    		$this->meta_keywords=Yii::$app->params['instantnewsMeta'][$action_id]['keywords'];
+    		if(empty($this->title)) //default
+    			$this->title='信報網站 - 即時新聞 金融脈搏 獨立股票投資分析 政治經濟 名筆評論 - hkej.com - 信報網站 hkej.com';
+
+
+            $fbarticleUrl = Yii::$app->params['mobilewebUrl'].'/'.Yii::$app->controller->id.'/'.$action_id;
+            $imgUrl = Yii::$app->params['staticUrl'].'backup_img/generic_social.png';
+            $fb_appid = '160465764053571';
+
+            Yii::$app->view->registerMetaTag([
+                    'name' => 'description',
+                    'content' => $this->meta_description,
+            ]);
+
+
+            Yii::$app->view->registerMetaTag([
+                    'name' => 'keywords',
+                    'content' => $this->meta_keywords,
+            ]);
+
+
+            Yii::$app->view->registerMetaTag(['property' => 'og:title', 'content' => $this->view->title], 'og_title');
+            Yii::$app->view->registerMetaTag(['property' => 'og:type', 'content' => 'article'], 'og_type');
+            Yii::$app->view->registerMetaTag(['property' => 'og:url', 'content' => $fbarticleUrl], 'og_url');
+            Yii::$app->view->registerMetaTag(['property' => 'og:image', 'content' => $imgUrl], 'og_image');
+            Yii::$app->view->registerMetaTag(['property' => 'og:image:width', 'content' => '620'], 'og:image:width');
+            Yii::$app->view->registerMetaTag(['property' => 'og:image:height', 'content' => '320'], 'og:image:height');
+            Yii::$app->view->registerMetaTag(['property' => 'og:site_name', 'content' => '信報網站 hkej.com'], 'og:site_name');
+            Yii::$app->view->registerMetaTag(['property' => 'fb:admins', 'content' => 'writerprogram'], 'fb:admins');
+            Yii::$app->view->registerMetaTag(['property' => 'fb:app_id', 'content' => '160465764053571'], 'fb:app_id');
+            Yii::$app->view->registerMetaTag(['property' => 'og:description', 'content' => $this->meta_description], 'og_description');
+
+    		$this->layout = 'mobLayout';
+    		return parent::beforeAction($action);
+
+        } else {
+                //$forwardURL = urlencode(app()->createAbsoluteUrl().$_SERVER["REQUEST_URI"]);
+                $desktopURL = Yii::$app->params['www2Url'].$_SERVER["REQUEST_URI"];
+                $desktopURL = preg_replace("%//instantnewsmob%", '/instantnews', $desktopURL);
+                $desktopURL = preg_replace("%//instantnewsMob%", '/instantnews', $desktopURL);
+                //echo $desktopURL;
+                $this->redirect($desktopURL);
+        }
+
+    	}
+}
+
+?>

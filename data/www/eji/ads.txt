@@ -1,0 +1,11 @@
+teads.tv, 3460, DIRECT, 15a9c44f6d26cbe1 #TeadsAPAC
+teads.tv, 13137, DIRECT, 15a9c44f6d26cbe1 #TeadsAPAC
+google.com, pub-8797077216294240, DIRECT, f08c47fec0942fa0
+google.com, pub-8797077216294240, RESELLER, f08c47fec0942fa0
+google.com, pub-2213557599675848, DIRECT, f08c47fec0942fa0
+indexexchange.com, 184665, RESELLER, 50b1c356f2c5c8fc
+teads.tv, 17680, DIRECT, 15a9c44f6d26cbe1
+teads.tv, 17699, DIRECT, 15a9c44f6d26cbe1
+Adsfactor.net, 10398, RESELLER
+adsfactor.net, 1329, RESELLER  
+adsfactor.net, 1330, RESELLER 
