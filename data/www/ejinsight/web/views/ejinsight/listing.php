@@ -160,39 +160,9 @@ $dir_path='/'.Yii::$app->params['dir_path'].'/';
                     
                          
                      
-                      <div class="section_list hotlist" >
-                     <div class="sticklist">
-                       <h2>POPULAR</h2>
-                         <div class="popu blog">
-                        
-                    <div class="item">
-                    	<div class="pic"><a href="#"><img src="images/articleimg7.jpg" alt=""/></a></div>
-                        <div class="cat"><a href="#">TRAVEL &amp; LIVING</a></div>
-                        <div class="title"><a href="#">【專訪李安】談電影：120fps令我興奮 談美國：恐懼跟暴力常常連接在一起 常連接在一起</a></div>
-                    </div> 
-                     <div class="item">
-                    	<div class="pic"><a href="#"><span class="playicon"></span><img src="images/articleimg1.jpg" alt=""/></a></div>
-                        <div class="cat"><a href="#">FASHION</a></div>
-                        <div class="title"><a href="#">巴黎打開404 走進巨盒裝置藝術內的旗艦店</a></div>
-                    </div> 
-                    <div class="item">
-                    	<div class="pic"><a href="#"><img src="images/articleimg5.jpg" alt=""/></a></div>
-                        <div class="cat"><a href="#">FOOD &amp; WINE</a></div>
-                        <div class="title"><a href="#">巴黎打開404 走進巨盒裝置藝術內的旗艦店</a></div>
-                    </div> 
-                      <div class="item">
-                    	<div class="pic"><a href="#"><img src="images/articleimg2.jpg" alt=""/></a></div>
-                        <div class="cat"><a href="#">FOOD &amp; WINE</a></div>
-                        <div class="title"><a href="#">巴黎打開404 走進巨盒裝置藝術內的旗艦店</a></div>
-                    </div> 
-                               
-                    </div>
-                    </div>  
-                   </div>
+                    <?php echo \app\components\MostPopularWidget::widget(); ?>  
                         
                         
-                            
-  
                   
                    </div>
                   

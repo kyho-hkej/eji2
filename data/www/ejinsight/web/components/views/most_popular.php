@@ -1,6 +1,6 @@
 <?php 
 use app\models\Article;
-$staticUrl = Yii::$app->params['ljstaticUrl'].'/web/';
+$staticUrl = Yii::$app->params['staticUrl'].'/web/';
 ?>
 <div class="section_list hotlist" >
 	<div class="sticklist">
@@ -12,10 +12,10 @@ $staticUrl = Yii::$app->params['ljstaticUrl'].'/web/';
 				//$article->initPhotos();
 				//$p=$article->images[0];	
 				$section=$article->getSection();
-				$sectionUrl='/lj/'.$section->sectionCode;
+				$sectionUrl='/eji/'.$section->sectionCode;
 				//$articleUrl='/home/article/id/'. $article->id;
 				//$articleUrl=$this->articleUrl($article);
-				$articleUrl=$article->getArticleUrl($article);
+				$articleUrl=Article::formatURL($article->subjectline,$article->id);
 				$imgUrl='';
 			    if($article->firstPhoto != ''){
 			    	$imgUrl=$article->imgUrl($size=620);

@@ -138,7 +138,7 @@ return [
     'searchUrl'=>'//search.hkej.com/template/fulltextsearch/php/search.php?q=',
     'section2id'=> [
             'all' => '26684,26685,26686,26687,26688,26689',
-            'popular-all' => '26684,26685,26686,26687,26688,26689',
+            'popular-all' => '26638,26684,26685,26686,26687,26688,26689,2151,2155,2153,2151,2155,2153',
             'lifestyle'=>'26684,26685,26686,26687,26688,26689,26638',
             'living' => '26638',
             'watchjewelry'=>'26684',  
