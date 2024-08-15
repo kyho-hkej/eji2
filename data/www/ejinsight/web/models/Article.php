@@ -198,6 +198,39 @@ class Article extends ActiveRecord
         return $article;
     }
 
+   public function findHotArticles($sectionId='', $limit, $interval){
+        if(!$sectionId || !is_numeric($interval))
+            return;
+        
+        $cacheKey='Article_findHotArticles_'.md5($sectionId);
+        $cache = Yii::$app->cache;
+        $articles=$cache->get($cacheKey);
+        if($articles==false){
+            $sql="SELECT ar . *
+                FROM `v_active_article` ar
+                JOIN article2section a2s ON ar.id = a2s.articleId
+                WHERE a2s.sectionId IN ( $sectionId) ";
+                if ($interval < 1) {
+                    $p= ($interval * 24).' HOUR';
+                }else{
+                    $p= "$interval DAY";
+                }
+                $sql .=" AND ar.publishDate BETWEEN DATE_SUB( now( ) , INTERVAL $p ) AND now( )
+                GROUP BY ar.id
+                order by viewCnt desc 
+                limit $limit ";
+
+            //er($sql);
+            //$articles=Article::model()->findAllBySql($sql);
+            $query=Article::findBySql($sql);
+            $articles = $query->all();
+            if($articles){
+                $cache->set($cacheKey, $articles, 600);
+            }
+        }
+        return $articles;
+    }
+    
     public function findRelatedByHashtags($articleId, $tags, $limit){
         if ($tags) {
             if (strpos($tags, ',') !== false) {

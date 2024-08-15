@@ -138,6 +138,7 @@ return [
     'searchUrl'=>'//search.hkej.com/template/fulltextsearch/php/search.php?q=',
     'section2id'=> [
             'all' => '26684,26685,26686,26687,26688,26689',
+            'popular-all' => '26684,26685,26686,26687,26688,26689',
             'lifestyle'=>'26684,26685,26686,26687,26688,26689,26638',
             'living' => '26638',
             'watchjewelry'=>'26684',  
@@ -146,6 +147,7 @@ return [
             'foodwine' => '26687',
             'designarchitecture' => '26688',
             'autogadgets' =>'26689',
+            'popular-sticky'=>'',
             'sticky-lifestyle'=>'26690',  
             'sticky-watchjewelry'=>'26691',  
             'sticky-fashionbeauty'=>'26692',   
