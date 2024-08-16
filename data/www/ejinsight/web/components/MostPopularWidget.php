@@ -16,7 +16,8 @@ class MostPopularWidget extends Widget {
         $sectionIds = Yii::$app->params['section2id']['popular-all'];
         parent::init();
 
-        $this->articles_hot = Article::findHotArticles($sectionIds, $limit=4, $interval=14);
+        //most popular in 3 * 24 hours
+        $this->articles_hot = Article::findHotArticles($sectionIds, $limit=4, $interval=3);
 
         //print_r($this->articles_hot);
 
@@ -40,6 +41,7 @@ class MostPopularWidget extends Widget {
     {
         /*echo $sectionIds;
         return $sectionIds;*/
+        //print_r($this->articles_hot);
         return $this->render('most_popular', ['articles' => $this->articles_hot]);
     }
 }

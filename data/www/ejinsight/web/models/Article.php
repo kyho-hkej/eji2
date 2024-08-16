@@ -202,7 +202,7 @@ class Article extends ActiveRecord
         if(!$sectionId || !is_numeric($interval))
             return;
         
-        $cacheKey='Article_findHotArticles_'.md5($sectionId);
+        $cacheKey='Article_findHotArticles__'.md5($sectionId);
         $cache = Yii::$app->cache;
         $articles=$cache->get($cacheKey);
         if($articles==false){
@@ -231,6 +231,7 @@ class Article extends ActiveRecord
         return $articles;
     }
     
+
     public function findRelatedByHashtags($articleId, $tags, $limit){
         if ($tags) {
             if (strpos($tags, ',') !== false) {

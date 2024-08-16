@@ -11,8 +11,14 @@ $staticUrl = Yii::$app->params['staticUrl'].'/web/';
 			foreach($articles as $article){
 				//$article->initPhotos();
 				//$p=$article->images[0];	
+				
 				$section=$article->getSection();
-				$sectionUrl='/eji/'.$section->sectionCode;
+				if ($section) {
+					$sectionUrl='/eji/'.$section->sectionCode;
+				} else {
+					$sectionUrl='';
+				}
+
 				//$articleUrl='/home/article/id/'. $article->id;
 				//$articleUrl=$this->articleUrl($article);
 				$articleUrl=Article::formatURL($article->subjectline,$article->id);
